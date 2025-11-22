@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ArrowRight, Plus, Minus, MapPin } from 'lucide-react';
-import Image from 'next/image'; // Import Image component
-import Link from 'next/link'; // Import Link component
+import Image from 'next/image';
+import Link from 'next/link';
 
 // --- Components ---
 
@@ -110,46 +110,74 @@ const SpecialtiesGrid = () => (
 );
 
 // 4. Bio Section (Mimicking "Our Doctors")
-const BioSection = () => (
-    <section id="bio" className="grid grid-cols-1 lg:grid-cols-2 border-b border-black/10">
-        <div className="bg-[#e8e3dc] text-[#2d2d2d] p-12 md:p-24 flex flex-col justify-center">
-            <h2 className="text-xs uppercase tracking-widest-plus mb-8 text-[#6b5d52]">Meet Dr. Kraker</h2>
-            <h3 className="text-3xl md:text-5xl font-light leading-tight mb-8">
-                Unrelenting about getting to the root cause of your suffering.
-            </h3>
-            <p className="text-lg text-[#4a4a4a] font-light leading-relaxed mb-8">
-                I am a Columbia and Cornell trained physician, nutritionist, nutrigenomics, and mental health expert
-                dedicated to optimizing your mental health. I practice psychiatry that is personalized, comprehensive,
-                and cutting edge.
-            </p>
-            <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-4 text-sm tracking-widest uppercase border-t border-[#c9b8a3] pt-4">
-                    <span className="text-[#8a7968] w-32">Training</span>
-                    <span>Columbia University & Cornell Medical</span>
-                </div>
-                <div className="flex items-center gap-4 text-sm tracking-widest uppercase border-t border-[#c9b8a3] pt-4">
-                    <span className="text-[#8a7968] w-32">Focus</span>
-                    <span>Nutrigenomics & Integrative Psychiatry</span>
+const BioSection = () => {
+    const imageRef = useRef<HTMLDivElement>(null);
+    const [isInView, setIsInView] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsInView(true);
+                }
+            },
+            { threshold: 0.3 }
+        );
+
+        if (imageRef.current) {
+            observer.observe(imageRef.current);
+        }
+
+        return () => {
+            if (imageRef.current) {
+                observer.unobserve(imageRef.current);
+            }
+        };
+    }, []);
+
+    return (
+        <section id="bio" className="grid grid-cols-1 lg:grid-cols-2 border-b border-black/10">
+            <div className="bg-[#e8e3dc] text-[#2d2d2d] p-12 md:p-24 flex flex-col justify-center">
+                <h2 className="text-xs uppercase tracking-widest-plus mb-8 text-[#6b5d52]">Meet Dr. Kraker</h2>
+                <h3 className="text-3xl md:text-5xl font-light leading-tight mb-8">
+                    Unrelenting about getting to the root cause of your suffering.
+                </h3>
+                <p className="text-lg text-[#4a4a4a] font-light leading-relaxed mb-8">
+                    I am a Columbia and Cornell trained physician, nutritionist, nutrigenomics, and mental health expert
+                    dedicated to optimizing your mental health. I practice psychiatry that is personalized, comprehensive,
+                    and cutting edge.
+                </p>
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-4 text-sm tracking-widest uppercase border-t border-[#c9b8a3] pt-4">
+                        <span className="text-[#8a7968] w-32">Training</span>
+                        <span>Columbia University & Cornell Medical</span>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm tracking-widest uppercase border-t border-[#c9b8a3] pt-4">
+                        <span className="text-[#8a7968] w-32">Focus</span>
+                        <span>Nutrigenomics & Integrative Psychiatry</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div className="relative group overflow-hidden bg-gray-200 h-[600px] md:h-[700px]">
-            <Image
-                src="/images/KRAKER2-2624-TS_background.jpg"
-                alt="Dr. Jennifer Kraker"
-                width={2000}
-                height={1500}
-                className="relative w-full h-full object-cover object-top grayscale group-hover:grayscale-0 group-hover:scale-105 transition-[filter] duration-[2400ms] ease-in-out"
-                style={{ transitionProperty: 'filter, transform', transitionDuration: '2400ms, 6660ms' }}
-                priority
-            />
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-all duration-[2400ms]"></div>
-            <div className="absolute bottom-8 left-8 bg-[#c9b8a3] px-4 py-2 z-10 shadow-lg">
-                <span className="text-xs uppercase tracking-widest font-bold text-[#2d2d2d]">Jennifer Kraker, MD, MS</span>
+            <div ref={imageRef} className={`relative group overflow-hidden bg-gray-200 h-[600px] md:h-[700px] ${isInView ? 'in-view' : ''}`}>
+                <Image
+                    src="/images/KRAKER2-2624-TS_background.jpg"
+                    alt="Dr. Jennifer Kraker"
+                    width={2000}
+                    height={1500}
+                    className={`relative w-full h-full object-cover object-top transition-[filter] duration-[2400ms] ease-in-out ${
+                        isInView ? 'grayscale-0 scale-105' : 'grayscale'
+                    } group-hover:grayscale-0 group-hover:scale-105`}
+                    style={{ transitionProperty: 'filter, transform', transitionDuration: '2400ms, 6660ms' }}
+                    priority
+                />
+                <div className={`absolute inset-0 transition-all duration-[2400ms] ${isInView ? 'bg-black/0' : 'bg-black/10'} group-hover:bg-black/0`}></div>
+                <div className="absolute bottom-8 left-8 bg-[#c9b8a3] px-4 py-2 z-10 shadow-lg">
+                    <span className="text-xs uppercase tracking-widest font-bold text-[#2d2d2d]">Jennifer Kraker, MD, MS</span>
+                </div>
             </div>
-        </div>
-    </section>
-);
+        </section>
+    );
+};
 
 // 5. Accordion Approach Section
 const AccordionItem = ({ title, content, isOpen, onClick }: any) => (
